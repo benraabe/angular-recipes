@@ -1,5 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../recipe.model';
+import { RecipeService } from '../recipe.service';
+import { ShoppingListService } from 'src/app/shopping-list/shopping-list.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -7,11 +11,41 @@ import { Recipe } from '../recipe.model';
   styles: []
 })
 export class RecipeDetailComponent implements OnInit {
-  @Input() selectedRecipe: Recipe;
+  selectedRecipe: Recipe;
+  recipeId: number;
+  private subscription: Subscription;
 
-  constructor() { }
+  constructor(
+    private recipeService: RecipeService,
+    private sls: ShoppingListService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+    ) { }
 
   ngOnInit() {
+    this.subscription = this.activatedRoute.params.subscribe(
+      params => {
+        this.recipeId = +params.id;
+        this.selectedRecipe = this.recipeService.getRecipe(this.recipeId);
+      }
+    );
+  }
+
+  ngOnDestrox() {
+    this.subscription.unsubscribe();
+  }
+
+  onAddToList() {
+    this.sls.addIngredients(this.selectedRecipe.ingredients);
+  }
+
+  onEdit() {
+    this.router.navigate(['/rezepte', this.recipeId, 'bearbeiten']);
+  }
+
+  onDelete() {
+    this.router.navigate(['/rezepte']);
+    this.recipeService.deleteRecipe(this.recipeId);
   }
 
 }

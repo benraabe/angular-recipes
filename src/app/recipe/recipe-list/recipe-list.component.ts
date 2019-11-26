@@ -1,6 +1,9 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 
 import { Recipe } from '../recipe.model';
+import { Ingredient } from 'src/app/shared/ingredient.model';
+import { RecipeService } from '../recipe.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-recipe-list',
@@ -8,17 +11,16 @@ import { Recipe } from '../recipe.model';
   styles: []
 })
 export class RecipeListComponent implements OnInit {
-  @Output() recipeSelected = new EventEmitter<Recipe>();
-  recipe = new Recipe('dummy', 'dummy', 'https://static.turbosquid.com/Preview/2019/02/18__04_59_25/Crash_Test_Dummy_Rigged_mb_00.jpg5B1ADE98-2892-494F-9EB2-F0B49A1BE375Default.jpg');
-  selectedRecipe: Recipe;
+  recipes: Recipe[];
 
-  constructor() { }
+  constructor(private recipeService: RecipeService, private router: Router) { }
 
   ngOnInit() {
+    this.recipes = this.recipeService.getRecipes();
   }
 
-  onSelected(recipe: Recipe) {
-    this.recipeSelected.emit(recipe);
+  onNewRecipe() {
+    this.router.navigate(['/rezepte', 'neu']);
   }
 
 }
