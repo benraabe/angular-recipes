@@ -32,4 +32,8 @@ export class RecipeService {
   deleteRecipe(id: number) {
     this.recipes.splice(id, 1);
   }
+
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+  }
 }
