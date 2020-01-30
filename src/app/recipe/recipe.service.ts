@@ -1,8 +1,16 @@
 import { Recipe } from './recipe.model';
 import { Ingredient } from '../shared/ingredient.model';
-import { EventEmitter } from '@angular/core';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { Injectable, EventEmitter } from '@angular/core';
+import { map } from 'rxjs/operators';
 
+@Injectable()
 export class RecipeService {
+  recipesChanged = new EventEmitter<Recipe[]>()
+
+  constructor(private httpClient: HttpClient){
+
+  }
   private recipes: Recipe[] = [
     new Recipe(
       'Schnitzel',
@@ -39,5 +47,30 @@ export class RecipeService {
 
   editRecipe(oldRecipe: Recipe, newRecipe: Recipe) {
     this.recipes[this.recipes.indexOf(oldRecipe)]= newRecipe;
+  }
+
+  storeData() {
+    const body = JSON.stringify(this.recipes);
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+    return this.httpClient.put('https://maxrezept-66da4.firebaseio.com/recipe.json', body, { headers });
+  }
+
+  fetchData() {
+    // const recipes = this.httpClient.get('https://maxrezept-66da4.firebaseio.com/recipe.json').pipe(
+    //   map((response: Response) => response)
+    // );
+    // // recipes.subscribe(response => console.log(response));
+    // recipes.subscribe((response) => {
+    //   this.recipes = response;
+    // })
+
+    this.httpClient.get<Recipe[]>('https://maxrezept-66da4.firebaseio.com/recipe.json').pipe(
+      map((recipes) => recipes)
+    ).subscribe(recipes => {
+      this.recipes = recipes;
+      this.recipesChanged.emit(this.recipes);
+    });
+
+    // recipes.subscribe(response => console.log(response));
   }
 }
